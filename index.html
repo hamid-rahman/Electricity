@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Electricity Bill Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      background: #e8f4ff;
+      padding: 15px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Electricity Bill Calculator</h2>
+    <label for="units">Enter Units Consumed:</label>
+    <input type="number" id="units" min="0" placeholder="e.g., 150">
+    <button onclick="calculateBill()">Calculate Bill</button>
+    <div class="result" id="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    function calculateBill() {
+      const units = parseFloat(document.getElementById("units").value);
+      if (isNaN(units) || units < 0) {
+        alert("Please enter a valid number of units.");
+        return;
+      }
+
+      let energyCharge = 0;
+
+      if (units <= 50) {
+        // Slab 1 - Only applicable if total units are 50 or less
+        energyCharge = units * 4.63;
+      } else {
+        let remainingUnits = units;
+
+        // Slab 2: 0–75 units @ 5.26
+        const slab2Units = Math.min(remainingUnits, 75);
+        energyCharge += slab2Units * 5.26;
+        remainingUnits -= slab2Units;
+
+        // Slab 3: 76–200 units @ 7.20
+        if (units > 75) {
+          const slab3Units = Math.min(units, 200) - 75;
+          energyCharge += slab3Units * 7.20;
+          remainingUnits -= slab3Units;
+        }
+
+        // Slab 4: 201–300 units @ 7.59
+        if (units > 200) {
+          const slab4Units = Math.min(units, 300) - 200;
+          energyCharge += slab4Units * 7.59;
+          remainingUnits -= slab4Units;
+        }
+
+        // Slab 5: 301–400 units @ 8.02
+        if (units > 300) {
+          const slab5Units = Math.min(units, 400) - 300;
+          energyCharge += slab5Units * 8.02;
+          remainingUnits -= slab5Units;
+        }
+
+        // Slab 6: 401–600 units @ 12.67
+        if (units > 400) {
+          const slab6Units = Math.min(units, 600) - 400;
+          energyCharge += slab6Units * 12.67;
+          remainingUnits -= slab6Units;
+        }
+
+        // Slab 7: 601+ units @ 14.61
+        if (units > 600) {
+          const slab7Units = units - 600;
+          energyCharge += slab7Units * 14.61;
+        }
+      }
+
+      const demandCharge = 42;
+      const meterRent = 10;
+      const subTotal = energyCharge + demandCharge + meterRent;
+      const vat = subTotal * 0.05;
+      const totalBill = subTotal + vat;
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("result").innerHTML = `
+        <strong>Units Consumed:</strong> ${units}<br>
+        <strong>Energy Charge:</strong> ${energyCharge.toFixed(2)} tk<br>
+        <strong>Demand Charge:</strong> ${demandCharge} tk<br>
+        <strong>Meter Rent:</strong> ${meterRent} tk<br>
+        <strong>Subtotal:</strong> ${subTotal.toFixed(2)} tk<br>
+        <strong>VAT (5%):</strong> ${vat.toFixed(2)} tk<br>
+        <strong>Total Bill:</strong> <strong>${totalBill.toFixed(2)} tk</strong>
+      `;
+    }
+  </script>
+</body>
+</html>
